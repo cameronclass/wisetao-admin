@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+    mysql:
+        image: mysql:8.0
+        container_name: wisetao_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: root_password
+            MYSQL_DATABASE: wisetao_admin
+            MYSQL_USER: wisetao
+            MYSQL_PASSWORD: wisetao_password
+        ports:
+            - "3307:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        command: --default-authentication-plugin=mysql_native_password
+        networks:
+            - wisetao_network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: wisetao_phpmyadmin
+        restart: unless-stopped
+        environment:
+            PMA_HOST: mysql
+            MYSQL_ROOT_PASSWORD: root_password
+        ports:
+            - "8081:80"
+        depends_on:
+            - mysql
+        networks:
+            - wisetao_network
+
+volumes:
+    mysql_data:
+        driver: local
+
+networks:
+    wisetao_network:
+        driver: bridge
