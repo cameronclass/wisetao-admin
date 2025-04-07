@@ -10,6 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        Schema::dropIfExists('api_tokens');
         Schema::create('api_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('name');

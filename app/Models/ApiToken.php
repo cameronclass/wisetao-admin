@@ -13,12 +13,13 @@ class ApiToken extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'token',
         'description',
+        'last_used_at',
         'expires_at',
     ];
 
@@ -33,16 +34,16 @@ class ApiToken extends Model
     ];
 
     /**
-     * Generate a new API token.
+     * Создать новый API токен
      *
-     * @param string $name
-     * @param string|null $description
-     * @param \DateTimeInterface|null $expiresAt
+     * @param string $name Название токена
+     * @param string|null $description Описание токена
+     * @param \DateTimeInterface|null $expiresAt Дата истечения срока действия
      * @return static
      */
     public static function createToken(string $name, ?string $description = null, ?\DateTimeInterface $expiresAt = null): self
     {
-        return static::create([
+        return self::create([
             'name' => $name,
             'token' => Str::random(64),
             'description' => $description,
@@ -51,17 +52,21 @@ class ApiToken extends Model
     }
 
     /**
-     * Check if the token is expired.
+     * Проверить, действителен ли токен
      *
      * @return bool
      */
-    public function isExpired(): bool
+    public function isValid(): bool
     {
-        return $this->expires_at !== null && now()->gt($this->expires_at);
+        if ($this->expires_at && now()->greaterThan($this->expires_at)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Update the last used timestamp.
+     * Обновить время последнего использования токена
      *
      * @return bool
      */
@@ -70,5 +75,16 @@ class ApiToken extends Model
         return $this->update([
             'last_used_at' => now(),
         ]);
+    }
+
+    /**
+     * Найти токен по значению
+     *
+     * @param string $token
+     * @return static|null
+     */
+    public static function findToken(string $token): ?self
+    {
+        return self::where('token', $token)->first();
     }
 }

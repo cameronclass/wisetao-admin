@@ -17,9 +17,9 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?string $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationLabel = 'Заказы';
+    protected static ?string $navigationLabel = 'Отслеживания Заказа';
 
     protected static ?int $navigationSort = 1;
 
@@ -27,128 +27,65 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Основная информация')
+                Forms\Components\Section::make('Информация о получателе')
                     ->schema([
                         Forms\Components\TextInput::make('order_number')
                             ->label('Номер заказа')
                             ->required()
                             ->unique(ignoreRecord: true),
-                        Forms\Components\DatePicker::make('receipt_date')
-                            ->label('Дата квитанции')
-                            ->required(),
-                        Forms\Components\TextInput::make('marking')
-                            ->label('Маркировка'),
-                        Forms\Components\TextInput::make('customer_order_number')
-                            ->label('Номер заказа клиента'),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Информация о доставке')
-                    ->schema([
-                        Forms\Components\TextInput::make('delivery_type')
-                            ->label('Вид доставки')
-                            ->required(),
-                        Forms\Components\TextInput::make('departure_place')
-                            ->label('Место отправки')
-                            ->required(),
-                        Forms\Components\TextInput::make('customer_code')
-                            ->label('Код клиента')
-                            ->required(),
-                        Forms\Components\TextInput::make('payment_method')
-                            ->label('Способ оплаты')
-                            ->required(),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Информация о грузе')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Наименование')
-                            ->required(),
-                        Forms\Components\TextInput::make('cargo_type')
-                            ->label('Вид груза')
-                            ->required(),
-                        Forms\Components\TextInput::make('place')
-                            ->label('Место'),
-                        Forms\Components\Textarea::make('purpose')
-                            ->label('Назначения')
-                            ->rows(2),
-                        Forms\Components\TextInput::make('weight')
-                            ->label('Вес')
-                            ->numeric()
-                            ->suffix('кг'),
-                        Forms\Components\TextInput::make('volume')
-                            ->label('Объем')
-                            ->numeric()
-                            ->suffix('м³'),
-                        Forms\Components\TextInput::make('density')
-                            ->label('Плотность')
-                            ->numeric(),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Финансовая информация')
-                    ->schema([
-                        Forms\Components\TextInput::make('cargo_cost')
-                            ->label('Стоимость груза')
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('insurance')
-                            ->label('Страховка')
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('rate')
-                            ->label('Ставка')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('delivery_cost')
-                            ->label('За доставку')
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('packaging_cost')
-                            ->label('Упаковка')
-                            ->numeric()
-                            ->prefix('¥'),
-                        Forms\Components\TextInput::make('loading_unloading_cost')
-                            ->label('Погрузочно-разгрузочные работы')
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('total_invoice_amount')
-                            ->label('Общая сумма накладной')
-                            ->numeric()
-                            ->prefix('$'),
-                        Forms\Components\TextInput::make('cod')
-                            ->label('Сбор при доставке (COD)')
-                            ->numeric()
-                            ->prefix('$'),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Информация о получателе')
-                    ->schema([
                         Forms\Components\TextInput::make('recipient')
                             ->label('Получатель')
                             ->required(),
-                        Forms\Components\TextInput::make('phone')
-                            ->label('Телефон')
-                            ->tel()
-                            ->required(),
                         Forms\Components\Textarea::make('recipient_address')
-                            ->label('Адрес получателя')
+                            ->label('Адрес доставки')
                             ->required()
                             ->rows(3),
-                        Forms\Components\TextInput::make('brand_name')
-                            ->label('Название бренда'),
-                    ])->columns(2),
+                    ])->columns(3),
 
-                Forms\Components\Section::make('Статус')
+                Forms\Components\Section::make('Информация о доставке')
                     ->schema([
-                        Forms\Components\Select::make('status')
-                            ->label('Статус заказа')
+                        Forms\Components\DatePicker::make('departure_date')
+                            ->label('Дата отправления')
+                            ->required(),
+                        Forms\Components\Select::make('delivery_method')
+                            ->label('Способ доставки')
                             ->options([
-                                'new' => 'Новый',
-                                'processing' => 'В обработке',
-                                'shipped' => 'Отправлен',
-                                'delivered' => 'Доставлен',
-                                'cancelled' => 'Отменен',
+                                'Авто' => 'Авто',
+                                'Авиа' => 'Авиа',
+                                'Жд' => 'Жд',
                             ])
                             ->required(),
-                    ])->columns(1),
+                        Forms\Components\Select::make('payment_status')
+                            ->label('Статус оплаты')
+                            ->options([
+                                'Оплачено' => 'Оплачено',
+                                'Не оплачено' => 'Не оплачено',
+                            ])
+                            ->required(),
+                    ])->columns(3),
+
+                Forms\Components\Section::make('Информация о грузе')
+                    ->schema([
+                        Forms\Components\TextInput::make('volume')
+                            ->label('Объем')
+                            ->numeric()
+                            ->suffix('м³')
+                            ->required(),
+                        Forms\Components\TextInput::make('weight')
+                            ->label('Вес')
+                            ->numeric()
+                            ->suffix('kg')
+                            ->required(),
+                        Forms\Components\Select::make('cargo_location')
+                            ->label('Местоположение груза')
+                            ->options([
+                                'По Китаю' => 'По Китаю',
+                                'Таможня' => 'Таможня',
+                                'В пути по россии' => 'В пути по россии',
+                                'Прибыл на место назначение' => 'Прибыл на место назначение',
+                            ])
+                            ->required(),
+                    ])->columns(3),
             ]);
     }
 
@@ -156,79 +93,86 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('order_number')
-                    ->label('Номер заказа')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('receipt_date')
-                    ->label('Дата квитанции')
-                    ->date('d.m.Y')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('customer_order_number')
-                    ->label('Номер заказа клиента')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('delivery_type')
-                    ->label('Вид доставки')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Наименование')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('recipient')
                     ->label('Получатель')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->label('Телефон')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('total_invoice_amount')
-                    ->label('Общая сумма')
-                    ->money('USD')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Статус')
+                Tables\Columns\TextColumn::make('recipient_address')
+                    ->label('Адрес доставки')
+                    ->searchable()
+                    ->limit(30),
+                Tables\Columns\TextColumn::make('departure_date')
+                    ->label('Дата отправления')
+                    ->date('d.m.Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('delivery_method')
+                    ->label('Способ доставки')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->label('Статус оплаты')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'new' => 'info',
-                        'processing' => 'warning',
-                        'shipped' => 'primary',
-                        'delivered' => 'success',
-                        'cancelled' => 'danger',
-                    })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'new' => 'Новый',
-                        'processing' => 'В обработке',
-                        'shipped' => 'Отправлен',
-                        'delivered' => 'Доставлен',
-                        'cancelled' => 'Отменен',
-                        default => $state,
-                    })
+                        'Оплачено' => 'success',
+                        'Не оплачено' => 'danger',
+                        default => 'warning',
+                    }),
+                Tables\Columns\TextColumn::make('volume')
+                    ->label('Объем')
+                    ->suffix(' м³')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('weight')
+                    ->label('Вес')
+                    ->suffix(' kg')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cargo_location')
+                    ->label('Местоположение груза')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'По Китаю' => 'gray',
+                        'Таможня' => 'warning',
+                        'В пути по россии' => 'info',
+                        'Прибыл на место назначение' => 'success',
+                        default => 'primary',
+                    }),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
-                    ->label('Статус')
+                Tables\Filters\SelectFilter::make('delivery_method')
+                    ->label('Способ доставки')
                     ->options([
-                        'new' => 'Новый',
-                        'processing' => 'В обработке',
-                        'shipped' => 'Отправлен',
-                        'delivered' => 'Доставлен',
-                        'cancelled' => 'Отменен',
+                        'Авто' => 'Авто',
+                        'Авиа' => 'Авиа',
+                        'Жд' => 'Жд',
                     ]),
-                Tables\Filters\Filter::make('receipt_date')
+                Tables\Filters\SelectFilter::make('payment_status')
+                    ->label('Статус оплаты')
+                    ->options([
+                        'Оплачено' => 'Оплачено',
+                        'Не оплачено' => 'Не оплачено',
+                    ]),
+                Tables\Filters\SelectFilter::make('cargo_location')
+                    ->label('Местоположение груза')
+                    ->options([
+                        'По Китаю' => 'По Китаю',
+                        'Таможня' => 'Таможня',
+                        'В пути по россии' => 'В пути по россии',
+                        'Прибыл на место назначение' => 'Прибыл на место назначение',
+                    ]),
+                Tables\Filters\Filter::make('departure_date')
                     ->form([
-                        Forms\Components\DatePicker::make('receipt_date_from')
+                        Forms\Components\DatePicker::make('departure_date_from')
                             ->label('С даты'),
-                        Forms\Components\DatePicker::make('receipt_date_until')
+                        Forms\Components\DatePicker::make('departure_date_until')
                             ->label('По дату'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['receipt_date_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('receipt_date', '>=', $date),
+                                $data['departure_date_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('departure_date', '>=', $date),
                             )
                             ->when(
-                                $data['receipt_date_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('receipt_date', '<=', $date),
+                                $data['departure_date_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('departure_date', '<=', $date),
                             );
                     }),
             ])
@@ -268,6 +212,6 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', 'new')->count() ?: null;
+        return static::getModel()::where('payment_status', 'Не оплачено')->count() ?: null;
     }
 }

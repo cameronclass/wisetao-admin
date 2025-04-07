@@ -15,5 +15,9 @@ mkdir -p ~/wisetao-admin/storage/framework/sessions
 chmod -R 775 ~/wisetao-admin/storage/framework/sessions
 
 
-ci20642@vh398:~/wisetao-admin$ ls -l public_html
-lrwxrwxrwx 1 ci20642 customers 36 Apr  2 13:42 public_html -> /home/c/ci20642/wisetao-admin/public
+## Комманды
+php artisan storage:link
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear

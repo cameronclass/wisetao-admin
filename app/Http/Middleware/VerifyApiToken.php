@@ -16,34 +16,40 @@ class VerifyApiToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->bearerToken() ?? $request->query('api_token');
+        // Проверяем наличие токена в заголовке X-API-Token
+        $tokenValue = $request->header('X-API-Token');
 
-        if (!$token) {
+        // Также проверяем токен в заголовке Authorization (Bearer token)
+        if (!$tokenValue && $request->hasHeader('Authorization')) {
+            $authHeader = $request->header('Authorization');
+            if (str_starts_with($authHeader, 'Bearer ')) {
+                $tokenValue = substr($authHeader, 7);
+            }
+        }
+
+        // Если токен не найден, возвращаем ошибку
+        if (!$tokenValue) {
             return response()->json([
+                'success' => false,
                 'message' => 'API токен не предоставлен',
             ], 401);
         }
 
-        $apiToken = ApiToken::where('token', $token)->first();
+        // Ищем токен в базе данных
+        $token = ApiToken::findToken($tokenValue);
 
-        if (!$apiToken) {
+        // Если токен не найден или недействителен, возвращаем ошибку
+        if (!$token || !$token->isValid()) {
             return response()->json([
+                'success' => false,
                 'message' => 'Недействительный API токен',
             ], 401);
         }
 
-        if ($apiToken->isExpired()) {
-            return response()->json([
-                'message' => 'API токен истек',
-            ], 401);
-        }
-
         // Обновляем время последнего использования токена
-        $apiToken->markAsUsed();
+        $token->markAsUsed();
 
-        // Добавляем токен к запросу для дальнейшего использования
-        $request->attributes->set('api_token', $apiToken);
-
+        // Продолжаем выполнение запроса
         return $next($request);
     }
 }
