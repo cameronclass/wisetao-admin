@@ -24,6 +24,7 @@ class Order extends Model
         'delivery_method',
         'departure_date',
         'cargo_location',
+        'delivery_stage',
     ];
 
     /**
@@ -35,5 +36,6 @@ class Order extends Model
         'departure_date' => 'date',
         'weight' => 'decimal:2',
         'volume' => 'decimal:2',
+        'delivery_stage' => 'integer',
     ];
 }

@@ -76,14 +76,16 @@ class OrderResource extends Resource
                             ->numeric()
                             ->suffix('kg')
                             ->required(),
-                        Forms\Components\Select::make('cargo_location')
+                        Forms\Components\TextInput::make('cargo_location')
                             ->label('Местоположение груза')
-                            ->options([
-                                'По Китаю' => 'По Китаю',
-                                'Таможня' => 'Таможня',
-                                'В пути по россии' => 'В пути по россии',
-                                'Прибыл на место назначение' => 'Прибыл на место назначение',
-                            ])
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText('Обновляется автоматически'),
+                        Forms\Components\TextInput::make('delivery_stage')
+                            ->label('Этап доставки')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(4)
                             ->required(),
                     ])->columns(3),
             ]);
@@ -96,6 +98,15 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('recipient')
                     ->label('Получатель')
                     ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('cargo_location')
+                    ->label('Местоположение груза')
+                    ->description(fn(Order $record): string => $record->departure_date
+                        ? $record->departure_date->format('d.m.Y')
+                        : 'Дата отправки не указана')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('delivery_stage')
+                    ->label('Этап доставки')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('recipient_address')
                     ->label('Адрес доставки')
@@ -152,10 +163,18 @@ class OrderResource extends Resource
                 Tables\Filters\SelectFilter::make('cargo_location')
                     ->label('Местоположение груза')
                     ->options([
-                        'По Китаю' => 'По Китаю',
-                        'Таможня' => 'Таможня',
-                        'В пути по россии' => 'В пути по россии',
-                        'Прибыл на место назначение' => 'Прибыл на место назначение',
+                        'В пути по Китаю' => 'В пути по Китаю',
+                        'Проходит таможенный контроль' => 'Проходит таможенный контроль',
+                        'В пути по России' => 'В пути по России',
+                        'Доставлено в место назначения' => 'Доставлено в место назначения',
+                    ]),
+                Tables\Filters\SelectFilter::make('delivery_stage')
+                    ->label('Этап доставки')
+                    ->options([
+                        '1' => 'Этап 1',
+                        '2' => 'Этап 2',
+                        '3' => 'Этап 3',
+                        '4' => 'Этап 4',
                     ]),
                 Tables\Filters\Filter::make('departure_date')
                     ->form([

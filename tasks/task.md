@@ -21,7 +21,7 @@ php artisan tinker
 use App\Models\User;
 User::create([
     'name' => 'Admin',
-    'email' => 'admin@admin.com',
+    'email' => 'admin@ad.com',
     'password' => bcrypt('admin')
 ]);
 ```
@@ -29,7 +29,7 @@ User::create([
 4. Проверьте создание пользователя:
 
 ```php
-User::where('email', 'admin@admin.com')->first();
+User::where('email', 'admin@ad.com')->first();
 ```
 
 5. Выйдите из Tinker:

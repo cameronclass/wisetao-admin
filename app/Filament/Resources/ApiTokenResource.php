@@ -34,9 +34,7 @@ class ApiTokenResource extends Resource
                         Forms\Components\Textarea::make('description')
                             ->label('Описание')
                             ->maxLength(1000),
-                        Forms\Components\DateTimePicker::make('expires_at')
-                            ->label('Срок действия до')
-                            ->nullable(),
+
                     ]),
             ]);
     }
@@ -58,10 +56,7 @@ class ApiTokenResource extends Resource
                     ->label('Последнее использование')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('expires_at')
-                    ->label('Срок действия до')
-                    ->dateTime()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Создан')
                     ->dateTime()

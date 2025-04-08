@@ -20,7 +20,6 @@ class ApiToken extends Model
         'token',
         'description',
         'last_used_at',
-        'expires_at',
     ];
 
     /**
@@ -30,7 +29,6 @@ class ApiToken extends Model
      */
     protected $casts = [
         'last_used_at' => 'datetime',
-        'expires_at' => 'datetime',
     ];
 
     /**
@@ -38,16 +36,14 @@ class ApiToken extends Model
      *
      * @param string $name Название токена
      * @param string|null $description Описание токена
-     * @param \DateTimeInterface|null $expiresAt Дата истечения срока действия
      * @return static
      */
-    public static function createToken(string $name, ?string $description = null, ?\DateTimeInterface $expiresAt = null): self
+    public static function createToken(string $name, ?string $description = null): self
     {
         return self::create([
             'name' => $name,
             'token' => Str::random(64),
             'description' => $description,
-            'expires_at' => $expiresAt,
         ]);
     }
 
@@ -58,10 +54,6 @@ class ApiToken extends Model
      */
     public function isValid(): bool
     {
-        if ($this->expires_at && now()->greaterThan($this->expires_at)) {
-            return false;
-        }
-
         return true;
     }
 
